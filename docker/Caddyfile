@@ -1,0 +1,34 @@
+{
+	# SITE_ADDRESS is a domain (automatic HTTPS) or ":80" for plain HTTP
+	admin off
+}
+
+(routes) {
+	handle_path /rest/v1/* {
+		reverse_proxy 127.0.0.1:3001
+	}
+	handle_path /auth/v1/* {
+		reverse_proxy 127.0.0.1:9999
+	}
+	handle_path /functions/v1/* {
+		reverse_proxy 127.0.0.1:9000
+	}
+	handle {
+		reverse_proxy 127.0.0.1:3000 {
+			# The app trusts cf-connecting-ip first, so overwrite it (and XFF) with the real peer address
+			header_up CF-Connecting-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Real-IP {remote_host}
+		}
+	}
+}
+
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+	import routes
+}
+
+# Internal listener used by the app server and pg_net (never published)
+http://127.0.0.1:8080 {
+	import routes
+}

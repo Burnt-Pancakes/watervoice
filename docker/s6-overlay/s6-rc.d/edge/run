@@ -1,0 +1,4 @@
+#!/command/with-contenv sh
+set -e
+. /etc/s6-overlay/scripts/env.sh
+exec /opt/bin/edge-runtime start --main-service /opt/functions/main --port 9000 --ip 127.0.0.1

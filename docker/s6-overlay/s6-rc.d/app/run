@@ -1,0 +1,6 @@
+#!/command/with-contenv sh
+set -e
+. /etc/s6-overlay/scripts/env.sh
+export PORT=3000 HOST=127.0.0.1 NITRO_PORT=3000 NITRO_HOST=127.0.0.1
+cd /opt/app
+exec node /opt/app/.output/server/index.mjs

@@ -1,0 +1,7 @@
+#!/command/with-contenv sh
+set -e
+. /etc/s6-overlay/scripts/env.sh
+export PGRST_DB_URI="postgres://authenticator:${POSTGRES_PASSWORD}@127.0.0.1:5432/postgres"
+export PGRST_DB_SCHEMAS=public PGRST_DB_ANON_ROLE=anon PGRST_JWT_SECRET="$JWT_SECRET"
+export PGRST_SERVER_HOST=127.0.0.1 PGRST_SERVER_PORT=3001
+exec /opt/bin/postgrest

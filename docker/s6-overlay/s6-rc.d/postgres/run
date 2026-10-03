@@ -1,0 +1,5 @@
+#!/command/with-contenv sh
+set -e
+. /etc/s6-overlay/scripts/env.sh
+export POSTGRES_PASSWORD PGDATA=/data/postgres JWT_SECRET
+exec docker-entrypoint.sh postgres -D /etc/postgresql -c data_directory=/data/postgres -c listen_addresses=127.0.0.1

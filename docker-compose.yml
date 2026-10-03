@@ -1,0 +1,22 @@
+# Test deployment (Unraid: use Compose Manager, or just `docker compose up -d --build`)
+services:
+  watervoice:
+    build:
+      context: .
+      args:
+        APP_REPO: https://github.com/Burnt-Pancakes/dc-water-watch.git
+        APP_REF: main
+    image: watervoice:dev
+    container_name: watervoice
+    restart: unless-stopped
+    ports:
+      - "8088:80"   # plain HTTP for LAN testing; use 80:80 and 443:443 with DOMAIN set in production
+    environment:
+      # DOMAIN: water.example.org
+      # PUBLIC_URL: http://tower.local:8088
+      AUTO_CONFIRM: "true"
+      # SMTP_HOST: smtp.example.com
+      # RESEND_API_KEY: ""
+      # ANTHROPIC_API_KEY: ""
+    volumes:
+      - /mnt/user/appdata/watervoice:/data

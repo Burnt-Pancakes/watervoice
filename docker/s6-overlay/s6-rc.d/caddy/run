@@ -1,0 +1,5 @@
+#!/command/with-contenv sh
+set -e
+. /etc/s6-overlay/scripts/env.sh
+export XDG_DATA_HOME=/data/caddy XDG_CONFIG_HOME=/data/caddy/config
+exec /opt/bin/caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
