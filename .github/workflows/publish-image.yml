@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       app_ref:
-        description: "dc-water-watch branch, tag or commit to build"
+        description: "waterwatch branch, tag or commit to build"
         default: main
       platforms:
         description: "Target platforms (use linux/amd64,linux/arm64 for Oracle Ampere)"
@@ -29,7 +29,7 @@ jobs:
         env:
           REF: ${{ inputs.app_ref || 'main' }}
         run: |
-          SHA=$(git ls-remote https://github.com/Burnt-Pancakes/dc-water-watch.git "$REF" | cut -f1 | head -n1)
+          SHA=$(git ls-remote https://github.com/Burnt-Pancakes/waterwatch.git "$REF" | cut -f1 | head -n1)
           echo "sha=${SHA:-$REF}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-qemu-action@v3

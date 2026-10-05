@@ -9,7 +9,7 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/Burnt-Pancakes/watervoice/issues</Support>
   <Project>https://github.com/Burnt-Pancakes/watervoice</Project>
-  <Overview>WaterWatch DMV all-in-one: Postgres, auth, API, edge functions, the web app and Caddy (automatic HTTPS) in a single container. Early test build.</Overview>
+  <Overview>WaterWatch DMV all-in-one: Postgres, auth, API, edge functions, the web app and Caddy (automatic HTTPS) in a single container. Early test build. You need a free CARTO basemaps key (https://carto.com/basemaps/apikey/).</Overview>
   <Category>Tools:</Category>
   <WebUI>http://[IP]:[PORT:80]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/Burnt-Pancakes/watervoice/main/unraid/watervoice.xml</TemplateURL>
@@ -18,6 +18,7 @@
   <Config Name="HTTP port" Target="80" Default="8088" Mode="tcp" Description="Container port 80. Unraid already uses host port 80, so map it to 8088 for LAN testing." Type="Port" Display="always" Required="true" Mask="false">8088</Config>
   <Config Name="HTTPS port" Target="443" Default="8443" Mode="tcp" Description="Only used when DOMAIN is set and ports 80/443 reach the container." Type="Port" Display="always" Required="false" Mask="false">8443</Config>
   <Config Name="Appdata" Target="/data" Default="/mnt/user/appdata/watervoice" Mode="rw" Description="Database, generated secrets, certificates and backups." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/watervoice</Config>
+  <Config Name="CARTO API key" Target="CARTO_API_KEY" Default="" Mode="" Description="Free basemap key from https://carto.com/basemaps/apikey/ . Get your own; do not reuse someone else's." Type="Variable" Display="always" Required="true" Mask="true"></Config>
   <Config Name="Public URL" Target="PUBLIC_URL" Default="" Mode="" Description="How browsers reach the app, e.g. http://192.168.1.50:8088 for LAN testing. Required without a domain." Type="Variable" Display="always" Required="false" Mask="false"></Config>
   <Config Name="Domain" Target="DOMAIN" Default="" Mode="" Description="Public hostname for automatic HTTPS (production). Leave empty for plain HTTP." Type="Variable" Display="always" Required="false" Mask="false"></Config>
   <Config Name="Auto-confirm sign-ups" Target="AUTO_CONFIRM" Default="true" Mode="" Description="Skip email confirmation (use when no SMTP is configured)." Type="Variable" Display="always" Required="false" Mask="false">true</Config>

@@ -14,7 +14,7 @@ FROM ${CADDY_IMAGE} AS caddy
 
 # ---- app build (placeholders are swapped for real values at container start) ----
 FROM node:24-bookworm AS build
-ARG APP_REPO=https://github.com/Burnt-Pancakes/dc-water-watch.git
+ARG APP_REPO=https://github.com/Burnt-Pancakes/waterwatch.git
 ARG APP_REF=main
 RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 WORKDIR /src
@@ -25,6 +25,7 @@ RUN npm ci --ignore-scripts
 ENV VITE_SUPABASE_URL=__WW_SUPABASE_URL__ \
     VITE_SUPABASE_PUBLISHABLE_KEY=__WW_ANON_KEY__ \
     VITE_SUPABASE_ANON_KEY=__WW_ANON_KEY__ \
+    VITE_CARTO_API_KEY=__WW_CARTO_KEY__ \
     NITRO_PRESET=node-server
 RUN npm run build
 RUN mkdir /out && for d in .output dist; do [ -d "$d" ] && cp -a "$d" /out/ || true; done && ls -la /out
