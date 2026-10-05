@@ -45,6 +45,8 @@ COPY --from=auth /usr/local/bin/auth /opt/bin/gotrue
 COPY --from=auth /usr/local/etc/auth/migrations /opt/gotrue-migrations
 COPY --from=postgrest /bin/postgrest /opt/bin/postgrest
 COPY --from=edge /usr/local/bin/edge-runtime /opt/bin/edge-runtime
+# edge-runtime needs a newer glibc than the Postgres base image: ship the edge image's libs and run it through its own ld.so
+COPY --from=edge /usr/lib/ /opt/edge-lib/
 COPY --from=caddy /usr/bin/caddy /opt/bin/caddy
 
 COPY --from=build /out/ /opt/app-dist/
@@ -57,7 +59,8 @@ COPY docker/Caddyfile /etc/caddy/Caddyfile
 COPY docker/s6-overlay/ /etc/s6-overlay/
 RUN chmod +x /etc/s6-overlay/scripts/*.sh /etc/s6-overlay/s6-rc.d/*/run 2>/dev/null || true
 
-ENV S6_KEEP_ENV=1 S6_BEHAVIOUR_IF_STAGE2_FAILS=2 S6_CMD_WAIT_FOR_SERVICES_MAXTIME=300000
+# 1 = keep the container up (and log a warning) if a service fails, so you can docker exec in; set 2 to exit instead
+ENV S6_KEEP_ENV=1 S6_BEHAVIOUR_IF_STAGE2_FAILS=1 S6_CMD_WAIT_FOR_SERVICES_MAXTIME=300000
 VOLUME /data
 EXPOSE 80 443
 ENTRYPOINT ["/init"]

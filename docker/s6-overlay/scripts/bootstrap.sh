@@ -3,7 +3,7 @@ set -e
 . /etc/s6-overlay/scripts/env.sh
 export PGPASSWORD="$POSTGRES_PASSWORD"
 PSQL="psql -h 127.0.0.1 -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -q"
-until pg_isready -h 127.0.0.1 -q; do sleep 1; done
+until pg_isready -h 127.0.0.1 -U supabase_admin -d postgres -q; do sleep 1; done
 
 $PSQL -c "ALTER ROLE authenticator WITH PASSWORD '$POSTGRES_PASSWORD'" \
       -c "ALTER ROLE supabase_auth_admin WITH PASSWORD '$POSTGRES_PASSWORD'"
