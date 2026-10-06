@@ -1,7 +1,8 @@
 -- Rewrites Lovable-specific URLs/keys in cron jobs and vault secrets. Idempotent.
 -- psql vars: base (Caddy internal), appbase (app on :3000), anon, cron
-SELECT set_config('ww.base', :'base', false), set_config('ww.appbase', :'appbase', false),
-       set_config('ww.anon', :'anon', false), set_config('ww.cron', :'cron', false);
+-- \gset stores the result in psql variables instead of printing it, so keys do not end up in the log.
+SELECT set_config('ww.base', :'base', false) AS a, set_config('ww.appbase', :'appbase', false) AS b,
+       set_config('ww.anon', :'anon', false) AS c, set_config('ww.cron', :'cron', false) AS d \gset
 
 DO $$
 DECLARE j record;
@@ -16,15 +17,10 @@ BEGIN
         'sb_publishable_[A-Za-z0-9_-]+', current_setting('ww.anon'), 'g'));
   END LOOP;
 
-  -- vault: create or update
-  IF EXISTS (SELECT 1 FROM vault.secrets WHERE name = 'cron_secret') THEN
-    PERFORM vault.update_secret((SELECT id FROM vault.secrets WHERE name='cron_secret'), current_setting('ww.cron'));
-  ELSE
-    PERFORM vault.create_secret(current_setting('ww.cron'), 'cron_secret');
-  END IF;
-  IF EXISTS (SELECT 1 FROM vault.secrets WHERE name = 'ingest_url') THEN
-    PERFORM vault.update_secret((SELECT id FROM vault.secrets WHERE name='ingest_url'), current_setting('ww.appbase') || '/api/public/ingest');
-  ELSE
-    PERFORM vault.create_secret(current_setting('ww.appbase') || '/api/public/ingest', 'ingest_url');
-  END IF;
+  -- Vault secrets are encrypted with the pgsodium root key. If that key changed (for example the container
+  -- was recreated), existing rows can no longer be decrypted, and vault.update_secret fails on them.
+  -- Replace the two secrets instead of updating them.
+  DELETE FROM vault.secrets WHERE name IN ('cron_secret', 'ingest_url');
+  PERFORM vault.create_secret(current_setting('ww.cron'), 'cron_secret');
+  PERFORM vault.create_secret(current_setting('ww.appbase') || '/api/public/ingest', 'ingest_url');
 END $$;
