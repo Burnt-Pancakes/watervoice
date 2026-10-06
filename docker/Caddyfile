@@ -13,11 +13,26 @@
 	handle_path /functions/v1/* {
 		reverse_proxy 127.0.0.1:9000
 	}
+
+	# Static build files are served from disk by Caddy. The Node server announces the file sizes it saw at
+	# build time, but start-up rewrites placeholders inside the JS (URL, keys), which changes the sizes.
+	@static {
+		file {
+			root /opt/app/.output/public
+			try_files {path}
+		}
+		not path /
+	}
+	handle @static {
+		root * /opt/app/.output/public
+		file_server
+	}
+
 	handle {
 		reverse_proxy 127.0.0.1:3000 {
-			# The app trusts cf-connecting-ip first, so overwrite it (and XFF) with the real peer address
+			# The app trusts cf-connecting-ip first, so overwrite it with the real peer address.
+			# (Caddy already replaces X-Forwarded-For for untrusted clients.)
 			header_up CF-Connecting-IP {remote_host}
-			header_up X-Forwarded-For {remote_host}
 			header_up X-Real-IP {remote_host}
 		}
 	}
